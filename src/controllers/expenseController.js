@@ -17,18 +17,17 @@ const expenseController={
     createExpense: async (request, response)=>{
         try{
             const {groupId}=request.params;
-            const {title, amount, paidByEmail}= req.body;
-
+            const {title, amount, paidByEmail}= request.body;
             if (!title || amount <= 0) {
-                return res.status(400).json({ message: "Invalid expense data" });
+                return response.status(400).json({ message: "Invalid expense data" });
             }
             const group = await Group.findById(groupId);
             if (!group) {
-                return res.status(404).json({ message: "Group not found" });
+                return response.status(404).json({ message: "Group not found" });
             }
 
             if (!group.membersEmail.includes(paidByEmail)) {
-                return res.status(400).json({
+                return response.status(400).json({
                     message: "Payer must be a member of the group"
                 });
             }
@@ -38,23 +37,24 @@ const expenseController={
                 email,
                 amount: splitAmount
             }));
-
             const expense = await expenseDao.createExpense({
-                groupId: new mongoose.Types.ObjectId(groupId),
+                groupId,
                 title,
                 amount,
                 paidByEmail,
                 splits
             });
-            res.status(201).json({ message: "Expense created successfully", expense });
+            response.status(201).json({ message: "Expense created successfully", expense });
         }
         catch(error){
+            console.log(error);
             response.status(500).json({message: "Error creating expenses"});
         }
     },
     
     getSettlement: async (request, response)=>{
         try {
+
             
         } catch (error) {
             response.status(500).json({message: "Error getting settlements"});
