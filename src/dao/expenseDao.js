@@ -6,7 +6,7 @@ const expenseDao={
     
     getExpensesByGroupId: async (groupId)=>{
         return await Expense.find({
-            groupId: new mongoose.Types.ObjectId(groupId)
+            groupId: groupId
         }).sort({ createdAt: -1 });
     },
 
