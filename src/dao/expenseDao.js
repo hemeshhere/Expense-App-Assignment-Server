@@ -1,14 +1,13 @@
 const Expense=require('../model/expense');
-const group = require('../model/group');
-const { getGroupByEmail } = require('./groupDao');
 const expenseDao={
     createExpense: async (data)=>{
-        const expense= new Expense(data);
-        return await expense.save();
+        return await Expense.create(data);
     },
     
     getExpensesByGroupId: async (groupId)=>{
-        return await Expense.find({groupId}).sort({createdAt: -1});
+        return await Expense.find({
+            groupId: new mongoose.Types.ObjectId(groupId)
+        }).sort({ createdAt: -1 });
     },
 
 };
