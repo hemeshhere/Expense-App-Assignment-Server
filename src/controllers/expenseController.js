@@ -44,6 +44,13 @@ const expenseController={
                 email,
                 amount: splitAmount
             }));
+
+            if (!splits || splits.length === 0) {
+                return response.status(400).json({
+                    message: "Splits required"
+                });
+            }
+
             const expense = await expenseDao.createExpense({
                 groupId,
                 title,
