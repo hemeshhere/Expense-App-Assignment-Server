@@ -17,7 +17,7 @@ const expenseController={
     createExpense: async (request, response)=>{
         try{
             const {groupId}=request.params;
-            const {title, amount}= request.body;
+            const {title, amount, splits}= request.body;
             if (!title || amount <= 0) {
                 return response.status(400).json({ message: "Invalid expense data" });
             }
@@ -27,24 +27,11 @@ const expenseController={
             }
 
             const paidByEmail = request.user.email;
-            console.log(paidByEmail);
             if (!group.membersEmail.includes(paidByEmail)) {
                 return response.status(400).json({
                     message: "Payer must be a member of the group"
                 });
             }
-            const members=group.membersEmail;
-            if (group.membersEmail.length < 2) {
-                return res.status(400).json({
-                    message: "Add at least 2 members to split expenses"
-                });
-            }
-            const splitAmount=amount/members.length;
-            const splits=members.map(email =>({
-                email,
-                amount: splitAmount
-            }));
-
             if (!splits || splits.length === 0) {
                 return response.status(400).json({
                     message: "Splits required"
@@ -57,13 +44,13 @@ const expenseController={
             for (let split of splits) {
 
                 if (!groupMembers.includes(split.email)) {
-                    return res.status(400).json({
+                    return response.status(400).json({
                         message: `Invalid member: ${split.email}`
                     });
                 }
 
                 if (uniqueMembers.has(split.email)) {
-                    return res.status(400).json({
+                    return response.status(400).json({
                         message: "Duplicate member in splits"
                     });
                 }
@@ -71,7 +58,7 @@ const expenseController={
                 uniqueMembers.add(split.email);
 
                 if (split.amount < 0) {
-                    return res.status(400).json({
+                    return response.status(400).json({
                         message: "Split amount cannot be negative"
                     });
                 }
@@ -80,7 +67,7 @@ const expenseController={
             }
 
             if (totalSplit !== Number(amount)) {
-                return res.status(400).json({
+                return response.status(400).json({
                     message: "Split total must equal expense amount"
                 });
             }
@@ -92,6 +79,7 @@ const expenseController={
                 paidByEmail,
                 splits
             });
+            console.log(expense);
             response.status(201).json({ message: "Expense created successfully", expense });
         }
         catch(error){
@@ -105,7 +93,7 @@ const expenseController={
             const {groupId}=request.params;
             const group = await Group.findById(groupId);
             if (!group) {
-                return res.status(404).json({ message: "Group not found" });
+                return response.status(404).json({ message: "Group not found" });
             }
             const expenses = await Expense.find({
                 groupId: groupId
