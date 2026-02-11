@@ -51,6 +51,40 @@ const expenseController={
                 });
             }
 
+            const groupMembers = group.membersEmail;
+            let totalSplit = 0;
+            const uniqueMembers = new Set();
+            for (let split of splits) {
+
+                if (!groupMembers.includes(split.email)) {
+                    return res.status(400).json({
+                        message: `Invalid member: ${split.email}`
+                    });
+                }
+
+                if (uniqueMembers.has(split.email)) {
+                    return res.status(400).json({
+                        message: "Duplicate member in splits"
+                    });
+                }
+
+                uniqueMembers.add(split.email);
+
+                if (split.amount < 0) {
+                    return res.status(400).json({
+                        message: "Split amount cannot be negative"
+                    });
+                }
+
+                totalSplit += Number(split.amount);
+            }
+
+            if (totalSplit !== Number(amount)) {
+                return res.status(400).json({
+                    message: "Split total must equal expense amount"
+                });
+            }
+
             const expense = await expenseDao.createExpense({
                 groupId,
                 title,
