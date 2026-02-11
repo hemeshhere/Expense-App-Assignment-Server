@@ -79,7 +79,6 @@ const expenseController={
                 paidByEmail,
                 splits
             });
-            console.log(expense);
             response.status(201).json({ message: "Expense created successfully", expense });
         }
         catch(error){
@@ -113,7 +112,6 @@ const expenseController={
                     balances[split.email] -= split.amount;
                 })
             })
-            console.log(balances);
             response.status(200).json(balances);
         } catch (error) {
             response.status(500).json({message: "Error getting settlements"});
